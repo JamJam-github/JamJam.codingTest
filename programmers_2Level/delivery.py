@@ -1,3 +1,4 @@
+# 다익스트라 알고리즘, 우선순위 큐 적용 (heapq 최소힙)
 # 배달
 
 from collections import defaultdict
@@ -5,37 +6,19 @@ import heapq
 
 
 def solution(N, road, K):
-    # visited = [False] * N
-
-    # 다익스트라 알고리즘, 우선순위 큐 적용 (heapq 최소힙)
+    # 최단 거리 테이블을 모두 무한으로 초기화
     dist = {i: float('inf') if i != 1 else 0 for i in range(1, N + 1)}
 
     nRoad = defaultdict(list)
     for v in road:
         nRoad[v[0]].append((v[1], v[2]))
         nRoad[v[1]].append((v[0], v[2]))
-    # print(nRoad)
-
-    # 50점 코드
-    # queue = deque()
-    # queue.append((1, 0))
-    # 
-    # while queue:
-    #     town, time = queue.popleft()
-    #     if not visited[town - 1]:
-    #         visited[town - 1] = True
-    # 
-    #         if time <= K:
-    #             answer += 1
-    # 
-    #             for val in nRoad[town]:
-    #                 queue.append((val[0], time + val[1]))
 
     queue = []
-    heapq.heappush(queue, [1, 0])  # 항상 1번 마을에서 시작, 초기 cost = 0
+    heapq.heappush(queue, (0, 1))  # (거리, 노드)로 구성되어야 '거리'값이 우선순위 값이 된다.
 
     while queue:
-        cur_town, cur_dist = heapq.heappop(queue)
+        cur_dist, cur_town = heapq.heappop(queue)
 
         if dist[cur_town] < cur_dist:
             continue
@@ -46,7 +29,7 @@ def solution(N, road, K):
             # 초과될 경우 pass, 더 이상 아래 노드도 진행하지 않음
             if cur_dist + d < dist[nxt_town]:
                 dist[nxt_town] = cur_dist + d
-                heapq.heappush(queue, [nxt_town, cur_dist + d])
+                heapq.heappush(queue, [cur_dist + d, nxt_town])
 
     print('total dist', dist)
     return len([True for i in dist.values() if i <= K])
