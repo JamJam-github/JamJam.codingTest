@@ -7,6 +7,39 @@
 # 열쇠의 돌기와 자물쇠의 돌기가 만나서는 안됩니다.
 
 
+def attach(x, y, M, key, board):
+    # key 크기만큼 board에 넣어보기
+    for i in range(M):
+        for j in range(M):
+            board[x + i][y + j] += key[i][j]
+
+
+def detach(x, y, M, key, board):
+    # key 크기만큼 board에서 빼주기
+    for i in range(M):
+        for j in range(M):
+            board[x + i][y + j] -= key[i][j]
+
+
+def rotate(arr):
+    # n = len(arr)
+    # ret = [[0] * n for _ in range(n)]
+    #
+    # for i in range(n):
+    #     for j in range(n):
+    #         ret[j][n - 1 - i] = arr[i][j]
+    # return ret
+    return list(zip(*arr[::-1]))  # 열->행을 행->열로 바꾸기
+
+
+def check(board, M, N):
+    for i in range(N):
+        for j in range(N):
+            if board[M + i][M + j] != 1:
+                return False
+    return True
+
+
 def solution(key, lock):
     M, N = len(key), len(lock)
 
@@ -14,35 +47,6 @@ def solution(key, lock):
     # 키를 가지고 한칸씩 이동해보면서 열리는지 확인하기 위함.
     board = [[0] * (M * 2 + N) for _ in range(M * 2 + N)]
     print(board)
-
-    def attach(x, y, M, key, board):
-        # key 크기만큼 board에 넣어보기
-        for i in range(M):
-            for j in range(M):
-                board[x + i][y + j] += key[i][j]
-
-    def detach(x, y, M, key, board):
-        # key 크기만큼 board에서 빼주기
-        for i in range(M):
-            for j in range(M):
-                board[x + i][y + j] -= key[i][j]
-
-    def rotate(arr):
-        # n = len(arr)
-        # ret = [[0] * n for _ in range(n)]
-        #
-        # for i in range(n):
-        #     for j in range(n):
-        #         ret[j][n - 1 - i] = arr[i][j]
-        # return ret
-        return list(zip(*arr[::-1]))  # 열->행을 행->열로 바꾸기
-
-    def check(board, M, N):
-        for i in range(N):
-            for j in range(N):
-                if board[M + i][M + j] != 1:
-                    return False
-        return True
 
     # 자물쇠 중앙 배치
     for i in range(N):
@@ -66,3 +70,52 @@ def solution(key, lock):
 
 print(solution(key=[[0, 0, 0], [1, 0, 0], [0, 1, 1]],
                lock=[[1, 1, 1], [1, 1, 0], [1, 0, 1]]))
+
+
+# -------------------------------------------------------------------------
+
+def match2(arr, key, rot, x, y):
+    n = len(key)
+    for i in range(n):
+        for j in range(n):
+            if rot == 0:
+                arr[x + i][y + j] += key[i][j]
+            elif rot == 1:
+                arr[x + i][y + j] += key[n - 1 - j][i]
+            elif rot == 2:
+                arr[x + i][y + j] += key[n - 1 - i][n - 1 - j]
+            else:
+                arr[x + i][y + j] += key[j][n - 1 - i]
+
+
+def check2(arr, offsets, n):
+    for i in range(n):
+        for j in range(n):
+            if arr[offsets + i][offsets + j] != 1:
+                return False
+    return True
+
+
+def solution2(key, lock):
+    offset = len(key) - 1  # 큰 보드에 자물쇠가 위치할 거리
+    for x in range(offset + len(lock)):
+        for y in range(offset + len(lock)):
+            for rot in range(4):  # 위치마다 총 4번 회전해서 확인
+                # lock, key 각각 최대 20 크기에서 겹치는 부분 제외 (60-2)
+                arr = [[0 for _ in range(58)] for _ in range(58)]
+
+                # 자물쇠 중앙에 배치
+                for i in range(len(lock)):
+                    for j in range(len(lock)):
+                        arr[offset + i][offset + j] = lock[i][j]
+
+                # 열쇠를 배치
+                match2(arr, key, rot, x, y)
+
+                if check2(arr, offset, len(lock)):
+                    return True
+    return False
+
+
+print(solution2(key=[[0, 0, 0], [1, 0, 0], [0, 1, 1]],
+                lock=[[1, 1, 1], [1, 1, 0], [1, 0, 1]]))
