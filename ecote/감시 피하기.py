@@ -5,8 +5,7 @@
 from itertools import combinations
 
 
-def watch(board, x, y, d):
-    global n
+def watch(n, board, x, y, d):
     # 왼쪽, 오른쪽, 상, 하
     if d == 0:
         while y >= 0:
@@ -43,10 +42,10 @@ def watch(board, x, y, d):
     return False
 
 
-def process(board, teachers):
+def process(n, board, teachers):
     for x, y in teachers:
         for i in range(4):
-            if watch(board, x, y, i):
+            if watch(n, board, x, y, i):
                 return True
     return False
 
@@ -74,7 +73,7 @@ def solution(n, board):
             board[x][y] = 'O'
 
         # 3)
-        if not process(board, teachers):
+        if not process(n, board, teachers):
             result = True
             break
 
